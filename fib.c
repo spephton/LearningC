@@ -7,7 +7,6 @@ static void printFib(int n);
 
 int main() {
 	
-	const int ascii0 = 48, ascii9 = 57;
 	int c;
 	int argLen = 0;
 	int argMaxSize = 2; // fib(94) overflows a long long: floats are for wusses
@@ -20,29 +19,31 @@ int main() {
 		if (argLen == argMaxSize) {
 			// can't accept arguments greater than 93, fib(94) overflows %llu
 			printf("ERROR: Input must be 93 or less\n");
-			return 0;
+			return 1;
 			
-		} else if (c < ascii0 || c > ascii9) {
+		} else if (c < '0' || c > '9') {
 			printf("ERROR: Input must be in decimal numeral format.\n");
-			return 0;
+			return 1;
 			
 		} else {
 			argStr[argLen] = c;
 			argLen++;
 		}
 	}
-	argStr[argLen] = 0; // null terminate the string
+	argStr[argLen] = 0; // null terminate the string NOTE: idk how safe this \
+	is, do we risk having un-anchored, allocated memory? I imagine we might? \
+	Strings just being a pointer to an array? I wanna learn more about this. 
 	
 	int argAsInt = parseDecimalString(argStr, argLen);
 	if (argAsInt > 93) {
 		printf("ERROR: Input must be 93 or less\n");
-		return 0;
+		return 1;
 	}
 	
 	printf("\n\nPrinting the first %i elements of the Fibonacci sequence:\n",
 	 argAsInt);
 	printFib(argAsInt);
-	return 1;
+	return 0;
 }
 
 // returns a*x^y. naive, performs y multiplications. 
@@ -62,13 +63,12 @@ static int parseDecimalString(char number[], int lastIndex) {
 	// Limitations: OOB input (int cannot store numbers greater than 32,767)
 	//				bad stuff happens if input isn't char[] of 48...57
 	int decimalStringAsInt = 0;
-	const int ascii0 = 48;
 	
 	// string[lastIndex] should == 0
 	if (number[lastIndex] != 0) {
 		printf("ERROR in parseDecimalString(): literal at last index of string\
 		should be zero for well-formed strings.\n");
-		return 0;
+		return -1;
 	}
 	
 	// meaning that we have lastIndex significant digits
@@ -77,7 +77,7 @@ static int parseDecimalString(char number[], int lastIndex) {
 	
 	// O(n^2) on lastIndex (I think...?)
 	for (int i = 0; i < lastIndex; i++) {
-		decimalStringAsInt += power(number[i] - ascii0, 10, highestPowerOfTen - i);
+		decimalStringAsInt += power(number[i] - '0', 10, highestPowerOfTen - i);
 	}
 	
 	return decimalStringAsInt;
