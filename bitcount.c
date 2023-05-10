@@ -10,6 +10,6 @@ int main(int argc, char *argv[]) {
 		if (x & 01)
 			b++;
 	}
-	printf("%i", b);
+	printf("%i\n", b);
 	return 0;
 }
