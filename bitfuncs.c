@@ -5,6 +5,8 @@ int setbits(int x, int p, int n, int y);
 unsigned getbits(unsigned x, int p, int n);
 int invert(int x, int p, int n);
 int bit_string(int x, char string[], int bounds);
+int mystrlen(char *string);
+void rev_str(char *dst, char *string);
 
 int main(int argc, char *argv[]) {
 	int i = atoi(argv[1]);
@@ -14,6 +16,7 @@ int main(int argc, char *argv[]) {
 	char string[32];
 	int len = bit_string(i, string, 32);
 	printf("%s has length %i\n", string, len);
+	printf("the length of %s is %i\n", "hello", mystrlen("hello"));
 	return 0;	
 }
 
@@ -45,3 +48,18 @@ int bit_string(int x, char string[], int bounds) {
 	return j;
 }
 
+void rev_str(char *dst, char *string) {
+	// Reverse string, put result in dst.
+	// dst must have enough memory
+	// string must be a valid string (\0 terminated)
+	int len = mystrlen(string);
+	
+	int i;
+	for (i = 0; i < len; i++) {
+	}
+}
+int mystrlen(char *string) {
+	int i;
+	for (i = 0; string[i] != 0; i++) {}
+	return i;
+}
