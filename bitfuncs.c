@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
 		bit_stringh(nums[i], corrected_bitstring, bounds);
 		printf("%s\n", corrected_bitstring);
 	}
-	// test
 	return 0;	
 }
 
