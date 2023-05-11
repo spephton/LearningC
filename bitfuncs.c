@@ -9,14 +9,21 @@ int mystrlen(char *string);
 void rev_str(char *dst, char *string);
 
 int main(int argc, char *argv[]) {
-	int i = atoi(argv[1]);
+//	int i = atoi(argv[1]);
 	// x = 0, p = n
 //	print("8: %i\n", setbits(0, 3, 3, 63)); // 8
 //	print("16: %i\n", setbits(0, 4, 3, 63)); // 16
 	char string[32];
-	int len = bit_string(i, string, 32);
-	printf("%s has length %i\n", string, len);
+//	int len = bit_string(i, string, 32);
+//	printf("%s has length %i\n", string, len);
 	printf("the length of %s is %i\n", "hello", mystrlen("hello"));
+
+    char *normal = "a dog a panic in a pagoda";
+	char reversed[32];
+	rev_str(reversed, normal);
+	printf("%s\n", normal);
+	printf("%s\n", reversed);
+	
 	return 0;	
 }
 
@@ -55,9 +62,12 @@ void rev_str(char *dst, char *string) {
 	int len = mystrlen(string);
 	
 	int i;
-	for (i = 0; i < len; i++) {
+	for (i = 0; i <= len; i++) {
+		dst[i] = string[len - i - 1];
 	}
+	dst[i] = '\0';
 }
+
 int mystrlen(char *string) {
 	int i;
 	for (i = 0; string[i] != 0; i++) {}
