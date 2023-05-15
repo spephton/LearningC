@@ -9,6 +9,7 @@ void bit_stringh(int x, char *bitstr, int bounds);
 unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y);
 void printbits(unsigned x);
 unsigned invert(unsigned x, int p, int n);
+unsigned rightrot(unsigned x, int n);
 
 
 int main(int argc, char *argv[]) {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
 	printf("Checking y should end with 00111: %s\n",
 			print_buffer);
 	
-	// let's shift right by p-n (assume this is positive e.g. 2
+	// let's shift left by p-n (assume this is positive e.g. 2
 	y <<= 2;
 	bit_stringh(y, print_buffer, bounds);
 	printf("Checking y should end with 0011100: %s\n",
@@ -128,6 +129,15 @@ int main(int argc, char *argv[]) {
 	// so invert(x, 7, 4) => 10010101
 	printbits(invert(x, 7, 4));
 
+	// finally: rightrot
+	// find the length of the bit field
+	// copy the n highest bits
+	// shift orignal left
+	// put n highest bits in n lowest spots
+	// therefore e.g. x = 11101101, n = 4
+	// should be      x = 11011110
+	printbits(rightrot(x, 4));
+
 	return 0;	
 }
 
@@ -152,11 +162,11 @@ unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 	// p >= n
 	// x & MASK should unset every bit not set in the mask
 	// our MASK should be ones initially: ~0
-	// shift right by n, fill those with zeros
+	// shift left by n, fill those with zeros
 	unsigned m = ~0;
 	m <<= n;
 	// we want the n lowest bits to be set though, so invert again, shift
-	// right by p - n, invert once more?
+	// left by p - n, invert once more?
 	m = ~(~m << (p - n));
 	// now we can unset the region concerned: 
 	x &= m;
@@ -165,7 +175,7 @@ unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 	// rightmost n bits of y to be copied into our target region
 	// first truncate to rightmost n:
 	y &= ~(~0 << n);
-	// then shift right by p - n:
+	// then shift left by p - n:
 	y <<= (p - n);
 
 	// finally, we can copy the target region of y into the cleared region
@@ -174,7 +184,7 @@ unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 	return x;
 }
 
-//Kinda want to see this with less comments:
+// Kinda want to see this with less comments:
 unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 	unsigned m = ~0;
 	m <<= n;
@@ -233,4 +243,28 @@ unsigned invert(unsigned x, int p, int n) {
 	unsigned mask = ~0 << n;
 	mask = ~mask << (p - n); // assume p >= n
 	return x ^ mask;
+}
+
+unsigned rightrot(unsigned x, int n) {
+	unsigned to_reduce = x;
+	unsigned mask;
+	unsigned topn;
+
+	int len;
+	for (len = 0; to_reduce !=0; len++) {
+		to_reduce >>= 1;
+	}
+
+	mask = ~0 << n;
+	mask = ~mask << (len - n); // assume len > n
+	
+	topn = x & mask;
+	topn >>= (len - n);
+
+	x <<= n; // we now need to dump everything above len
+	mask = ~0;
+	mask <<= len;
+	x &= ~mask;
+
+	return x | topn;
 }
