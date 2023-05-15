@@ -2,13 +2,13 @@
 
 unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y);
 unsigned getbits(unsigned x, int p, int n);
-int invert(int x, int p, int n);
 int bit_string(int x, char string[], int bounds);
 int mystrlen(char *string);
 void rev_str(char *dst, char *string);
 void bit_stringh(int x, char *bitstr, int bounds);
 unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y);
 void printbits(unsigned x);
+unsigned invert(unsigned x, int p, int n);
 
 
 int main(int argc, char *argv[]) {
@@ -122,7 +122,11 @@ int main(int argc, char *argv[]) {
 	//
 	// but first let's make it easier to print bits
 	printbits(x);
-
+	// sweet
+	
+	// ok let's try invert. x has 8 sig bits if it's 11101101
+	// so invert(x, 7, 4) => 10010101
+	printbits(invert(x, 7, 4));
 
 	return 0;	
 }
@@ -223,4 +227,10 @@ void bit_stringh(int x, char *bitstr, int bounds) {
 	char reversed[bounds];
 	bit_string(x, reversed, bounds);
 	rev_str(bitstr, reversed);
+}
+
+unsigned invert(unsigned x, int p, int n) {
+	unsigned mask = ~0 << n;
+	mask = ~mask << (p - n); // assume p >= n
+	return x ^ mask;
 }
