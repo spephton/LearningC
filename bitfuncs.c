@@ -8,6 +8,7 @@ int mystrlen(char *string);
 void rev_str(char *dst, char *string);
 void bit_stringh(int x, char *bitstr, int bounds);
 unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y);
+void printbits(unsigned x);
 
 
 int main(int argc, char *argv[]) {
@@ -115,8 +116,30 @@ int main(int argc, char *argv[]) {
 	x = 245;
 	x = uc_setbits(x, 5, 3, y);
 	printf("%i\n", x);
+
+	// Next one: invert(x, p, n)
+	// returns x with the n bits that begin at p inverted.
+	//
+	// but first let's make it easier to print bits
+	printbits(x);
+
+
 	return 0;	
 }
+
+void printbits(unsigned x) {
+	// Print the bits! In human-logical order! Maximum of BIT_LIM
+	// bits (currently 31)
+	int BIT_LIM = 31;
+	int bounds = BIT_LIM + 1;
+	char correct[bounds];
+
+	bit_stringh(x, correct, bounds);
+	printf("%s\n", correct);
+}
+
+	
+
 
 unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 	// setbits sets [p:p-n] from the right of x to rightmost n bits of y
