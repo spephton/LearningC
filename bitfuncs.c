@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-int setbits(int x, int p, int n, int y);
+unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y);
 unsigned getbits(unsigned x, int p, int n);
 int invert(int x, int p, int n);
 int bit_string(int x, char string[], int bounds);
@@ -10,13 +9,6 @@ void rev_str(char *dst, char *string);
 void bit_stringh(int x, char *bitstr, int bounds);
 
 int main(int argc, char *argv[]) {
-//	int i = atoi(argv[1]);
-	// x = 0, p = n
-//	print("8: %i\n", setbits(0, 3, 3, 63)); // 8
-//	print("16: %i\n", setbits(0, 4, 3, 63)); // 16
-	char string[32];
-//	int len = bit_string(i, string, 32);
-//	printf("%s has length %i\n", string, len);
 
     char *normal = "a dog a panic in a pagoda";
 	char reversed[32];
@@ -39,19 +31,114 @@ int main(int argc, char *argv[]) {
 		bit_stringh(nums[i], corrected_bitstring, bounds);
 		printf("%s\n", corrected_bitstring);
 	}
-	//testing
+	printf("ok sweet we worked that out and we can now get the bit ");
+	printf("representation of a number in a sane order\n");
+	
+	// work on setbits here:
+	// x, p, n, y -> int
+	unsigned m = ~0; // 111...
+	m <<= 3; // 1111...1000
+	// let's check
+	char print_buffer[bounds]; 
+	bit_stringh(m, print_buffer, bounds);
+	printf("Checking m should have three trailing zeros: %s\n",
+			print_buffer);
+	// cool, m is 1111...11000
+	// let's invert it then add another region
+	m = ~m;
+	m <<= 2;
+	m = ~m;
+	bit_stringh(m, print_buffer, bounds);
+	printf("Checking m should end with 00011: %s\n",
+			print_buffer);
+	// dank, that worked. We have our bitmask, x & m should
+	// unset the region we want to write.	
+	
+	// now we mask y, unset all but the rightmost n bits
+	unsigned y = 63; // a bunch of ones
+	y &= ~((unsigned)~0 << 3); // unset all but the last three
+	bit_stringh(y, print_buffer, bounds);
+	printf("Checking y should end with 00111: %s\n",
+			print_buffer);
+	
+	// let's shift right by p-n (assume this is positive e.g. 2
+	y <<= 2;
+	bit_stringh(y, print_buffer, bounds);
+	printf("Checking y should end with 0011100: %s\n",
+			print_buffer);
+	// Cool, we have everything we need. Let's take an x like 128, so we
+	// can see our insertion clearly:
+	unsigned x = 128;
+	x &= m; // unsets bits 2-4 (right-indexed)
+			// (they're already zero though)
+	x |= y;  // copy our y into the trimmed bits
+	// result should be a 1 in the 128's col,
+	// and three 1s in the 16, 8, 4 cols
+	bit_stringh(x, print_buffer, bounds);
+	printf("Checking x should end with 10011100: %s\n",
+			print_buffer);
+	// that works, sweet, let's write our function!
+	
+
+	printf("7: %i\n", setbits(0, 3, 3, 63)); // 7
+	printf("14: %i\n", setbits(0, 4, 3, 63)); // 14
+	
+	x = 245;
+	y = 523;
+	bit_stringh(x, print_buffer, bounds);
+	printf("x:   %s\n", print_buffer);
+	bit_stringh(y, print_buffer, bounds);
+	printf("y: %s\n", print_buffer);
+	// this should really be a function dude
+	//
+	// anyway that prints:
+	// x:   11110101
+	// y: 1000001011
+	//
+	// so if p = 5, n = 3, we copy 011 from y and put it:
+	// 11110101
+	//    ^^^
+	//    here
+	// 
+	// yielding
+	// 11101101
+	//
+	// what is that in decimal? I'll let the computer work it out:
+	x = setbits(x, 5, 3, y);
+	printf("Turns out it's %i\n", x);
+	printf("And let's check the bits actually are 11101101:\n");
+	bit_stringh(x, print_buffer, bounds);
+	printf("%s\n", print_buffer);
 	return 0;	
 }
 
-int setbits(int x, int p, int n, int y) {
-	// setbits sets x[p:p-n] to rightmost n bits of y
+unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
+	// setbits sets [p:p-n] from the right of x to rightmost n bits of y
 	//
+	// ASSUME:
+	// p >= n
 	// x & MASK should unset every bit not set in the mask
 	// our MASK should be ones initially: ~0
-	// shift right by p-n, fill those with zeros
+	// shift right by n, fill those with zeros
+	unsigned m = ~0;
+	m <<= n;
 	// we want the n lowest bits to be set though, so invert again, shift
-	// right by n, invert once more?
-	return 0;
+	// right by p - n, invert once more?
+	m = ~(~m << (p - n));
+	// now we can unset the region concerned: 
+	x &= m;
+
+	// the region we're copying into is now zeroed. We can now prepare the
+	// rightmost n bits of y to be copied into our target region
+	// first truncate to rightmost n:
+	y &= ~(~0 << n);
+	// then shift right by p - n:
+	y <<= (p - n);
+
+	// finally, we can copy the target region of y into the cleared region
+	// of x:
+	x |= y;
+	return x;
 }
 
 int bit_string(int x, char string[], int bounds) {
