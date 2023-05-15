@@ -7,6 +7,8 @@ int bit_string(int x, char string[], int bounds);
 int mystrlen(char *string);
 void rev_str(char *dst, char *string);
 void bit_stringh(int x, char *bitstr, int bounds);
+unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y);
+
 
 int main(int argc, char *argv[]) {
 
@@ -109,6 +111,10 @@ int main(int argc, char *argv[]) {
 	printf("And let's check the bits actually are 11101101:\n");
 	bit_stringh(x, print_buffer, bounds);
 	printf("%s\n", print_buffer);
+	// Let's check I didn't blow up anything important:
+	x = 245;
+	x = uc_setbits(x, 5, 3, y);
+	printf("%i\n", x);
 	return 0;	
 }
 
@@ -137,6 +143,18 @@ unsigned setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
 
 	// finally, we can copy the target region of y into the cleared region
 	// of x:
+	x |= y;
+	return x;
+}
+
+//Kinda want to see this with less comments:
+unsigned uc_setbits(unsigned x, unsigned p, unsigned n, unsigned y) {
+	unsigned m = ~0;
+	m <<= n;
+	m = ~(~m << (p - n));
+	x &= m;
+	y &= ~(~0 << n);
+	y <<= (p - n);
 	x |= y;
 	return x;
 }
