@@ -15,7 +15,7 @@ void fizzbuzz(int n) {
 			p += printf("Fizz");
 		if (i % 5 == 0)
 			p += printf("Buzz");
-if (!p)
+		if (!p)
 			printf("%i", i);
 		printf("\n");
 	}
