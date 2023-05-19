@@ -24,7 +24,7 @@ if (!p)
 void f2zzb2zz(int n) {
 	int i;
 	for(i = 0; i < n; i++) {
-		switch (((i % 3) ? 0 : 1) | ((i % 5) ? 0 : 2)) {
+		switch (((i % 3) == 0) | ((i % 5) == 0) * 2) {
 			case 0:
 				printf("%i", i);
 				break;
